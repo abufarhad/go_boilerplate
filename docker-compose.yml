@@ -1,0 +1,59 @@
+version: "3.8"
+
+services:
+  consul:
+    image: consul:latest
+    container_name: wt_consul
+    restart: always
+    ports:
+      - 8590:8500
+    networks:
+      - wt_network
+
+  db:
+    container_name: wt_mysql
+    build:
+      context: .
+      dockerfile: Dockerfile.db
+    ports:
+      - 3315:3306
+    volumes:
+      - wt_data:/var/lib/mysql:rw
+    environment:
+      - MYSQL_USER=wellteam_user
+      - MYSQL_PASSWORD=12345678
+      - MYSQL_DATABASE=wellteam
+      - MYSQL_ROOT_PASSWORD=12345678
+    tty: true
+    networks:
+      - wt_network
+
+  wt_core_api:
+    container_name: wt_core_api
+    build:
+      context: .
+    ports:
+      - 7700:7000
+    command: serve
+    # volumes:
+    # - ./:/project  # uncomment this line if you want realtime codebase update to the container
+    environment:
+      - CONSUL_URL=wt_consul:8500
+      - CONSUL_PATH=wt_core_api
+    tty: true
+    #    depends_on:
+    #      - consul
+    #      - db
+    networks:
+      - wt_network
+    restart: on-failure:3
+
+
+networks:
+  wt_network:
+    name: wt_network
+    driver: bridge
+
+volumes:
+  wt_data:
+    name: wt_data

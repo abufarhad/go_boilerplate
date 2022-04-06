@@ -1,0 +1,30 @@
+{
+  "app": {
+    "name": "Microservice starter template",
+    "port": 7000,
+    "limit": 10,
+    "page": 1,
+    "sort": "created_at desc"
+  },
+  "db": {
+    "host": "db",
+    "port": "3306",
+    "user": "root",
+    "pass": "12345678",
+    "schema": "template",
+    "maxIdleConn": 1,
+    "maxOpenConn": 2,
+    "maxConnLifetime": 30,
+    "debug": true
+  },
+  "file": {
+    "fileSize": "10M",
+    "fileTypes": [
+      "img"
+    ],
+    "fileExts": [
+      "png",
+      "jpg"
+    ]
+  }
+}
