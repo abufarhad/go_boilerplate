@@ -13,7 +13,7 @@ func Init(g interface{}) {
 	grp := g.(*gin.RouterGroup)
 	grp = grp.Group(VersionPrefix)
 	db := conn.Db()
-
+	conn.Migrate()
 	// repo layer
 	sysRepo := repo.NewSystemRepository(db)
 

@@ -4,37 +4,56 @@ import (
 	"core/infra/config"
 	"core/infra/logger"
 	"core/model"
+	"database/sql"
 	"fmt"
+	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
+	"github.com/pressly/goose"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+	gormlogger "gorm.io/gorm/logger"
 	"io/ioutil"
 	"os"
 	"time"
-
-	gomysql "github.com/go-sql-driver/mysql"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
-	gormlogger "gorm.io/gorm/logger"
 )
 
 var db *gorm.DB
 
-type DbErrors struct {
-	*gomysql.MySQLError
-}
+//type DbErrors struct {
+//	*gomysql.MySQLError
+//}
 
 func ConnectDb() {
+	envErr := godotenv.Load()
+	if envErr != nil {
+		logger.Error("Error loading .env file", envErr)
+	}
 	conf := config.Db()
 
-	logger.Info("connecting to mysql at " + conf.Host + ":" + conf.Port + "...")
+	//logger.Info("connecting to mysql at " + conf.Host + ":" + conf.Port + "...")
 
 	logMode := gormlogger.Silent
 	if conf.Debug {
 		logMode = gormlogger.Info
 	}
 
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", conf.User, conf.Pass, conf.Host, conf.Port, conf.Schema)
+	//dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", conf.User, conf.Pass, conf.Host, conf.Port, conf.Schema)
+	//logger.Info(dsn)
+
+	dsn := fmt.Sprintf("port=%s host=%s user=%s password=%s dbname=%s sslmode=disable",
+		os.Getenv("DB_PORT"),
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_USERNAME"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_NAME"))
+
 	logger.Info(dsn)
 
-	dB, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+	//dB, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+	//	PrepareStmt: true,
+	//	Logger:      gormlogger.Default.LogMode(logMode),
+	//})
+	dB, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		PrepareStmt: true,
 		Logger:      gormlogger.Default.LogMode(logMode),
 	})
@@ -59,13 +78,43 @@ func ConnectDb() {
 	}
 
 	db = dB
-	populateDbModel(db)
+	//populateDbModel(db)
 
 	logger.Info("mysql connection successful...")
 }
 
 func Db() *gorm.DB {
 	return db
+}
+
+func Migrate() {
+	envErr := godotenv.Load()
+	if envErr != nil {
+		logger.Error("Error loading .env file", envErr)
+	}
+	connUrl := fmt.Sprintf("port=%s host=%s user=%s password=%s dbname=%s sslmode=disable",
+		os.Getenv("DB_PORT"),
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_USERNAME"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_NAME"))
+
+	database, e := sql.Open("postgres", connUrl)
+	if e != nil {
+		logger.Error("gooes connection error ", e)
+		panic(e)
+	}
+
+	logger.Info("Data migration starting ...")
+	if err := goose.Run("up", database, "/", ""); err != nil {
+		panic(err)
+	}
+	logger.Info("Data migration Success")
+
+	err := database.Close()
+	if err != nil {
+		panic(err)
+	}
 }
 
 func populateDbModel(db *gorm.DB) {
