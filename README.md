@@ -6,6 +6,12 @@ Install dependencies
 ```go
 go mod vendor
 ```
+
+### Data Migration using `gooes`
+> To create initial table go to this directory`go_boilerplate/infra/conn/migration`  
+
+> Run this command
+> `goose create table_name go  `
 ### Seedding database
 
 ```go
