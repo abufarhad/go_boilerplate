@@ -10,11 +10,23 @@ func init() {
 }
 
 func upCreateTableTest(tx *sql.Tx) error {
-	// This code is executed when the migration is applied.
+	query := `CREATE TABLE IF NOT EXISTS test_table (
+		id varchar primary key,
+		order_id varchar,
+		customer_id varchar,
+		created_at timestamp NOT NULL,
+		updated_at timestamp NOT NULL
+	);`
+	if _, err := tx.Exec(query); err != nil {
+		return err
+	}
 	return nil
 }
 
 func downCreateTableTest(tx *sql.Tx) error {
-	// This code is executed when the migration is rolled back.
+	query := `DROP TABLE IF EXISTS test_table;`
+	if _, err := tx.Exec(query); err != nil {
+		return err
+	}
 	return nil
 }
