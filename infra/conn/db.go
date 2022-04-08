@@ -23,11 +23,24 @@ var db *gorm.DB
 //	*gomysql.MySQLError
 //}
 
-func ConnectDb() {
+func getdsn() string {
 	envErr := godotenv.Load()
 	if envErr != nil {
 		logger.Error("Error loading .env file", envErr)
 	}
+
+	var dsn = fmt.Sprintf("port=%s host=%s user=%s password=%s dbname=%s sslmode=disable",
+		os.Getenv("DB_PORT"),
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_USERNAME"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_NAME"))
+
+	logger.Info(dsn)
+	return dsn
+}
+
+func ConnectDb() {
 	conf := config.Db()
 
 	//logger.Info("connecting to mysql at " + conf.Host + ":" + conf.Port + "...")
@@ -38,27 +51,18 @@ func ConnectDb() {
 	}
 
 	//dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", conf.User, conf.Pass, conf.Host, conf.Port, conf.Schema)
-	//logger.Info(dsn)
-
-	dsn := fmt.Sprintf("port=%s host=%s user=%s password=%s dbname=%s sslmode=disable",
-		os.Getenv("DB_PORT"),
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_USERNAME"),
-		os.Getenv("DB_PASSWORD"),
-		os.Getenv("DB_NAME"))
-
-	logger.Info(dsn)
 
 	//dB, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 	//	PrepareStmt: true,
 	//	Logger:      gormlogger.Default.LogMode(logMode),
 	//})
-	dB, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+	dB, err := gorm.Open(postgres.Open(getdsn()), &gorm.Config{
 		PrepareStmt: true,
 		Logger:      gormlogger.Default.LogMode(logMode),
 	})
 
 	if err != nil {
+		logger.Error("postgres connection error ", err)
 		panic(err)
 	}
 
@@ -80,7 +84,8 @@ func ConnectDb() {
 	db = dB
 	//populateDbModel(db)
 
-	logger.Info("mysql connection successful...")
+	//logger.Info("mysql connection successful...")
+	logger.Info("postgres connection successful...")
 }
 
 func Db() *gorm.DB {
@@ -88,23 +93,13 @@ func Db() *gorm.DB {
 }
 
 func Migrate() {
-	envErr := godotenv.Load()
-	if envErr != nil {
-		logger.Error("Error loading .env file", envErr)
-	}
-	connUrl := fmt.Sprintf("port=%s host=%s user=%s password=%s dbname=%s sslmode=disable",
-		os.Getenv("DB_PORT"),
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_USERNAME"),
-		os.Getenv("DB_PASSWORD"),
-		os.Getenv("DB_NAME"))
-
-	database, e := sql.Open("postgres", connUrl)
+	database, e := sql.Open("postgres", getdsn())
 	if e != nil {
 		logger.Error("gooes connection error ", e)
 		panic(e)
 	}
 
+	logger.Info("postgres connection successful...")
 	logger.Info("Data migration starting ...")
 	if err := goose.Run("up", database, "/", ""); err != nil {
 		panic(err)
