@@ -33,5 +33,5 @@ func (sys *system) Health(c *gin.Context) {
 		logger.Error(fmt.Sprintf("%+v", resp), err)
 		c.JSON(http.StatusInternalServerError, errors.ErrSomethingWentWrong)
 	}
-	c.JSON(http.StatusOK, msgutil.NewRestResp("", resp))
+	c.JSON(http.StatusOK, msgutil.NewRestResp("server status", resp))
 }

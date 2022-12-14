@@ -103,7 +103,7 @@ func LoadConfig() {
 func setDefaultConfig() {
 	config.App = &AppConfig{
 		Name:  "App Name",
-		Port:  "8080",
+		Port:  "8087",
 		Page:  1,
 		Limit: 10,
 		Sort:  "created_at desc",
@@ -114,7 +114,7 @@ func setDefaultConfig() {
 		Port:            "3306",
 		User:            "root",
 		Pass:            "12345678",
-		Schema:          "wellteam",
+		Schema:          "demo_database",
 		MaxIdleConn:     1,
 		MaxOpenConn:     2,
 		MaxConnLifetime: 30,

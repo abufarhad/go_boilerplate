@@ -4,6 +4,7 @@ import (
 	"context"
 	"core/infra/config"
 	"core/infra/logger"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -34,6 +35,7 @@ func Start() {
 			log.Printf("listen: %s\n", err)
 		}
 	}()
+	fmt.Println("server listening on port : ", port)
 
 	// graceful shutdown
 	GracefulShutdown(srv)

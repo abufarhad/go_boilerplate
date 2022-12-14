@@ -6,10 +6,11 @@ import (
 	"core/model"
 	"database/sql"
 	"fmt"
+	gomysql "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/pressly/goose"
-	"gorm.io/driver/postgres"
+	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	gormlogger "gorm.io/gorm/logger"
 	"io/ioutil"
@@ -19,9 +20,9 @@ import (
 
 var db *gorm.DB
 
-//type DbErrors struct {
-//	*gomysql.MySQLError
-//}
+type DbErrors struct {
+	*gomysql.MySQLError
+}
 
 func getdsn() string {
 	envErr := godotenv.Load()
@@ -41,28 +42,32 @@ func getdsn() string {
 }
 
 func ConnectDb() {
+	envErr := godotenv.Load()
+	if envErr != nil {
+		logger.Error("Error loading .env file", envErr)
+	}
 	conf := config.Db()
 
 	//logger.Info("connecting to mysql at " + conf.Host + ":" + conf.Port + "...")
 
 	logMode := gormlogger.Silent
-	if conf.Debug {
-		logMode = gormlogger.Info
-	}
+	//if conf.Debug {
+	//	logMode = gormlogger.Info
+	//}
 
-	//dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", conf.User, conf.Pass, conf.Host, conf.Port, conf.Schema)
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", os.Getenv("DB_USERNAME"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_HOST"), os.Getenv("DB_PORT"), os.Getenv("DB_NAME"))
 
-	//dB, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
-	//	PrepareStmt: true,
-	//	Logger:      gormlogger.Default.LogMode(logMode),
-	//})
-	dB, err := gorm.Open(postgres.Open(getdsn()), &gorm.Config{
+	dB, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		PrepareStmt: true,
 		Logger:      gormlogger.Default.LogMode(logMode),
 	})
+	//dB, err := gorm.Open(postgres.Open(getdsn()), &gorm.Config{
+	//	PrepareStmt: true,
+	//	Logger:      gormlogger.Default.LogMode(logMode),
+	//})
 
 	if err != nil {
-		logger.Error("postgres connection error ", err)
+		logger.Error("mysql connection error ", err)
 		panic(err)
 	}
 
@@ -82,10 +87,10 @@ func ConnectDb() {
 	}
 
 	db = dB
-	//populateDbModel(db)
+	populateDbModel(db)
 
-	//logger.Info("mysql connection successful...")
-	logger.Info("postgres connection successful...")
+	logger.Info("mysql connection successful...")
+	//logger.Info("postgres connection successful...")
 }
 
 func Db() *gorm.DB {
