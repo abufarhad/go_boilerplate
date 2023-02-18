@@ -22,14 +22,16 @@ WORKDIR /src
 COPY ./ ./
 
 RUN go mod vendor
+
 # Build the Go app (check this line)
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix 'static' -o /app .
-#RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags '-extldflags "-static"' -o main.
+#RUN CGO_ENABLED=0 GOOS=arm64 go build -a -installsuffix cgo -ldflags '-extldflags "-static"' -o main.
+
 
 ######## Start a new stage from scratch #######
 # Final stage: the running container.
 FROM scratch AS final
-
+FROM --platform=linux/amd64 scratch
 # Import the user and group files from the first stage.
 COPY --from=builder /user/group /user/passwd /etc/
 # Import the Certificate-Authority certificates for enabling HTTPS.

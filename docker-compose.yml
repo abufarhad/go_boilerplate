@@ -3,33 +3,33 @@ version: "3.8"
 services:
   consul:
     image: consul:latest
-    container_name: wt_consul
+    container_name: go_consul
     restart: always
     ports:
       - 8590:8500
     networks:
-      - wt_network
+      - go_network
 
   db:
-    container_name: wt_mysql
+    container_name: go_mysql
     build:
       context: .
       dockerfile: Dockerfile.db
     ports:
       - 3315:3306
     volumes:
-      - wt_data:/var/lib/mysql:rw
+      - go_data:/var/lib/mysql:rw
     environment:
-      - MYSQL_USER=wellteam_user
+      - MYSQL_USER=root
       - MYSQL_PASSWORD=12345678
-      - MYSQL_DATABASE=wellteam
+      - MYSQL_DATABASE=demo_database
       - MYSQL_ROOT_PASSWORD=12345678
     tty: true
     networks:
-      - wt_network
+      - go_network
 
-  wt_core_api:
-    container_name: wt_core_api
+  go_boilerplate:
+    container_name: go_boilerplate
     build:
       context: .
     ports:
@@ -38,22 +38,22 @@ services:
     # volumes:
     # - ./:/project  # uncomment this line if you want realtime codebase update to the container
     environment:
-      - CONSUL_URL=wt_consul:8500
-      - CONSUL_PATH=wt_core_api
+      - CONSUL_URL=go_consul:8500
+      - CONSUL_PATH=go_boilerplate
     tty: true
-    #    depends_on:
-    #      - consul
-    #      - db
+    depends_on:
+          - consul
+          - db
     networks:
-      - wt_network
-    restart: on-failure:3
+      - go_network
+    restart: always
 
 
 networks:
-  wt_network:
-    name: wt_network
+  go_network:
+    name: go_network
     driver: bridge
 
 volumes:
-  wt_data:
-    name: wt_data
+  go_data:
+    name: go_data

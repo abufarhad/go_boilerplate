@@ -1,4 +1,4 @@
-PROJECT_NAME := wt_core_api
+PROJECT_NAME := go_boilerplate
 PKG_LIST := $(shell go list ${PROJECT_NAME}/tests/testing/... | grep -v /vendor/)
 
 
@@ -15,7 +15,7 @@ help: ## Display this help screen
 ########################
 development:
 	# booting up dependency containers
-	@#docker-compose up -d --build consul db
+	@docker-compose up -d --build consul db
 
 	# wait for consul container be ready
 	@while ! curl --request GET -sL --url 'http://localhost:8590/' > /dev/null 2>&1; do printf .; sleep 1; done
