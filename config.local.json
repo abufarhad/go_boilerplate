@@ -1,7 +1,7 @@
 {
   "app": {
     "name": "Microservice starter template",
-    "port": 7000,
+    "port": 8090,
     "limit": 10,
     "page": 1,
     "sort": "created_at desc"
@@ -11,7 +11,7 @@
     "port": "3306",
     "user": "root",
     "pass": "12345678",
-    "schema": "template",
+    "schema": "demo_database",
     "maxIdleConn": 1,
     "maxOpenConn": 2,
     "maxConnLifetime": 30,
@@ -26,5 +26,9 @@
       "png",
       "jpg"
     ]
+  },
+  "InternalService": {
+    "contactEmailUrl":"http://localhost:7005/api/v1/email",
+    "timeout": 520
   }
 }

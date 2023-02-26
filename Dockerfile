@@ -1,7 +1,7 @@
-# Default to Go 1.17.3
-ARG GO_VERSION=1.17.3
+# Default to Go 1.19
+ARG GO_VERSION=1.19
 
-# Start from golang v1.15,6 base image
+# Start from golang v 1.19 base image
 FROM golang:${GO_VERSION}-alpine AS builder
 
 # Create the user and group files that will be used in the running container to
@@ -21,10 +21,9 @@ WORKDIR /src
 # Import the code from the context.
 COPY ./ ./
 
-RUN go mod vendor
 
 # Build the Go app (check this line)
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix 'static' -o /app .
+RUN CGO_ENABLED=0 GO111MODULE=on go build -a -installsuffix 'static' -o /app .
 #RUN CGO_ENABLED=0 GOOS=arm64 go build -a -installsuffix cgo -ldflags '-extldflags "-static"' -o main.
 
 

@@ -6,7 +6,7 @@ services:
     container_name: go_consul
     restart: always
     ports:
-      - 8590:8500
+      - 8500:8500
     networks:
       - go_network
 
@@ -16,7 +16,7 @@ services:
       context: .
       dockerfile: Dockerfile.db
     ports:
-      - 3315:3306
+      - 3306:3306
     volumes:
       - go_data:/var/lib/mysql:rw
     environment:
@@ -33,7 +33,7 @@ services:
     build:
       context: .
     ports:
-      - 7700:7000
+      - 8090:8090
     command: serve
     # volumes:
     # - ./:/project  # uncomment this line if you want realtime codebase update to the container
@@ -46,7 +46,7 @@ services:
           - db
     networks:
       - go_network
-    restart: always
+    restart: on-failure:3
 
 
 networks:

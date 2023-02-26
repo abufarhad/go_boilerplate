@@ -48,19 +48,17 @@ func ConnectDb() {
 	}
 	conf := config.Db()
 
-	//logger.Info("connecting to mysql at " + conf.Host + ":" + conf.Port + "...")
+	logger.Info("connecting to mysql at " + conf.Host + ":" + conf.Port + "...")
 
 	logMode := gormlogger.Silent
-	//if conf.Debug {
-	//	logMode = gormlogger.Info
-	//}
-
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", os.Getenv("DB_USERNAME"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_HOST"), os.Getenv("DB_PORT"), os.Getenv("DB_NAME"))
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", conf.User, conf.Pass, conf.Host, conf.Port, conf.Schema)
+	logger.Info(dsn)
 
 	dB, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		PrepareStmt: true,
 		Logger:      gormlogger.Default.LogMode(logMode),
 	})
+
 	//dB, err := gorm.Open(postgres.Open(getdsn()), &gorm.Config{
 	//	PrepareStmt: true,
 	//	Logger:      gormlogger.Default.LogMode(logMode),
