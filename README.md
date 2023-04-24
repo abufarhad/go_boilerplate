@@ -46,3 +46,7 @@ make development
 make clean
 ```
 
+### Check codebase package dependency
+```go
+godepgraph  -s -novendor -p github.com  . | dot -Tpng -o package_dependency.png  
+```
