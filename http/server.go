@@ -14,19 +14,19 @@ import (
 )
 
 func Start() {
-	e := gin.Default()
+	g := gin.Default()
 
 	//if err := middlewares.Attach(e); err != nil {
 	//	logger.Error("error occur when attaching middlewares", err)
 	//	os.Exit(1)
 	//}
 
-	Init(e.Group("api"))
+	Init(g.Group("api"))
 	port := config.App().Port
 
 	srv := &http.Server{
 		Addr:    ":" + port,
-		Handler: e,
+		Handler: g,
 	}
 	/// start http server
 	go func() {

@@ -34,10 +34,15 @@ go run main.go seed -t=true
 go run main.go serve
 ```
 
-# Start the server using Docker
+## Start the server using Docker
 
 ```go
 make development
 ```
 
+## Stop the server by Docker
+
+```makefile
+make clean
+```
 
